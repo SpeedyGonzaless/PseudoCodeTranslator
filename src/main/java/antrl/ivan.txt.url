@@ -1,0 +1,85 @@
+program = source_element+ // Набор элементов кода - от 1 до N элементов.
+source_element = statements | function_declaration+ // элемент - либо объявление функции, либо некоторое выражение.
+statements = statement+
+statement = variable_statement   // Определение переменной.
+             | empty_statement      // Пустое выражение.
+             | expr_statement       // Вычислимое выражение.
+             | if_statement         // IF.
+             | iteration_statement  // FOR/WHILE.
+			 
+
+# ЛИТЕРАЛЫ.
+//регулярки для POSITIVE, NEGATIVE, STRING, INTEGER, FLOAT, ID
+
+INTEGER = POSITIVE | NEGATIVE //на этапе лексера удобнее разбить на >= 0 и < 0
+
+literal = boolean_literal // Булева константа.
+           | numeric_literal // Число.
+           | string_literal  // Строка.
+boolean_literal = TRUE | FALSE //рассматирвай их как 0 или 1
+numeric_literal = INTEGER | FLOAT
+string_literal = STRING 
+identifier = ID // Название перменной.
+call_id = identifier | identifier"["(POSITIVE | identifier)"]" //Обращение к переменной
+
+# ВЫРАЖЕНИЯ.
+
+simple_obj = call_id | literal  | "-" simple_obj | "(" simple_obj ")"
+multiplicative = simple_obj (("*" | "/" | "%") simple_obj)*
+additive = multiplicative (("+" | "-" ) multiplicative)* 
+
+//Операторы сравнения
+relational = additive (("<" | ">" | ">=" | "<=") additive)*
+
+//Операторы равенства
+equality = relational (("==" | "!=") relational)*
+
+//Логическе операторы
+logical = equality (("OR" | "AND") equality)* 
+
+// ++ или --
+postfix = call_id "++" | call_id "--"
+
+//Выражения которые могут использоваться для присваивания
+assignment_expr = "<-" logical
+
+//Присваивание
+expr = call_id assignment_expr
+expr_statement = expr "\n" | postfix "\n"
+
+# НИЧЕГО.
+empty_statement = "\n" | EPS
+
+# ОБЪЯВЛЕНИЕ ПЕРЕМЕННОЙ.
+
+types_simple = "int32" | "int64" | "String" | "bool" | "float" //простые типы
+array = types_simple identifier "[" (POSITIVE | identifier) "]" //массив может быть только простого типа
+types = "Map" "(" types_simple ","  types_simple ")" | types_simple //добавили к простым типам специальный тип Map
+varible = types identifier | array 
+variable_declaration = varible | varible assignment_expr | "auto" identifier assignment_expr
+variable_statement = variable_declaration "\n"
+
+# СЛОЖНЫЕ КОНСТРУКЦИИ.
+
+// IF.
+
+if_statement = "IF" "(" logical ")" "THEN" "\n" statements "ENDIF" "\n"
+                | "IF" "(" logical ")" "THEN" "\n" statements "ELSE" "\n" statements "ENDIF" "\n"
+
+// ЦИКЛЫ.
+
+iteration_statement = "WHILE" "(" logical ")" "\n" statements "ENDWHILE" "\n" // 
+iteration_statement = "FOR" identifier assignment_expr "TO" (INTEGER | call_id) "\n"
+iteration_statement = "FOR EACH" identifier "IN" identifier "\n" statements
+
+// RETURN. Если функция всегда что-то возвращает, то надо это в функциюю перенести
+// И убрать из statements.
+
+return_statement = "RETURN" logical "\n" | "RETURN" "\n"
+
+//ФУНКЦИИ
+
+function_declaration = "FUNCTION" identifier "(" ")" ":" return_types "BEGIN" "\n" statements return_statement "END_FUNCTION" "\n"
+                        | "FUNCTION" identifier "(" formal_parameter_list ")" ":" return_types "BEGIN" "\n" statements return_statement "END_FUNCTION" "\n"
+return_types = types | types_simple "[]" | VOID
+formal_parameter_list = varible ("," varible)*

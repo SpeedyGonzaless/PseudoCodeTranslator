@@ -1,0 +1,31 @@
+FUNCTION InsetSort (int32[] a) : int32[] BEGIN
+	int32 i <- 1
+	WHILE (i<n)
+		elem <- a[i]
+		loc <- i - 1
+		WHILE (loc >= 0 AND a[loc] > elem)
+			a[loc + 1] <- a[loc]
+			loc <- loc - 1
+		ENDWHILE
+		a[loc + 1] <- elem
+		i <- i + 1
+	ENDWHILE
+	RETURN a
+END_FUNCTION
+
+FUNCTION findMaxElem (float[] array) : float BEGIN
+	float max <- array[0]
+	FOREACH elem IN array
+		IF (elem > max) THEN
+			max <- elem
+		ENDIF
+	ENDFOREACH
+	RETURN max
+END_FUNCTION
+
+int32 size <- 10
+float[size] floatArray
+FOR i <- 0 TO size
+	floatArray[i] <- i
+ENDFOR
+float maxValue <- findMaxElem(floatArray)

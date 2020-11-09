@@ -1,5 +1,5 @@
-import com.antr.PseudoCodeLexer;
-import com.antr.PseudoCodeParser;
+import antr.PseudoCodeLexer;
+import antr.PseudoCodeParser;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -16,13 +16,19 @@ public class Main {
         Scanner myReader = new Scanner(programFile);
         while (myReader.hasNextLine()) {
             programString += myReader.nextLine();
+            programString += "\n";
         }
         myReader.close();
-        com.antr.PseudoCodeLexer lexer = new PseudoCodeLexer(CharStreams.fromString(programString));
+//        programString = "FUNCTION InsetSort (int32[] a) : int32[] BEGIN\n";
+        PseudoCodeLexer lexer = new PseudoCodeLexer(CharStreams.fromString(programString));
         CommonTokenStream tokens = new CommonTokenStream(lexer);
-        com.antr.PseudoCodeParser parser = new PseudoCodeParser(tokens);
+        PseudoCodeParser parser = new PseudoCodeParser(tokens);
         ParseTree tree = parser.program();
-        ParseTreeWalker walker = new ParseTreeWalker();
+        ParseTreeWalker walker = new CustomWalker();
+        MyListener myListener = new MyListener();
+        walker.walk(myListener, tree);
+        System.out.println();
+        System.out.println(myListener);
         int t = 0;
     }
 }

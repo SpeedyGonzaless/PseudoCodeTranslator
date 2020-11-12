@@ -4,9 +4,16 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
-public class MyListener extends PseudoCodeBaseListener {
+public class PythonListener extends PseudoCodeBaseListener {
 	private String code = "";
 	private int tabCounter = 0;
+	private boolean functionDeclaration = false;
+	private boolean loopDeclaration = false;
+	private boolean forLoop = false;
+	//array : types_simple literal_left_square_bracket (literal_postitive | literal_identifier) literal_right_square_bracket literal_identifier;
+	private boolean arrayDeclaration = false;
+	private boolean rightSquarePassed = false;
+	private String arraySize = "";
 
 	private void addTabs() {
 		for (int i=0; i<tabCounter; i++) {
@@ -157,12 +164,29 @@ public class MyListener extends PseudoCodeBaseListener {
 	@Override public void exitLiteral_minus_minis(PseudoCodeParser.Literal_minus_minisContext ctx) { }
 
 	@Override public void enterLiteral_assign_sign(PseudoCodeParser.Literal_assign_signContext ctx) {
-		code +="=";
+		if (!forLoop) {
+			code += "=";
+		} else {
+			code += " in range(";
+		}
 	}
 
 	@Override public void exitLiteral_assign_sign(PseudoCodeParser.Literal_assign_signContext ctx) { }
 
 	@Override public void enterLiteral_new_line(PseudoCodeParser.Literal_new_lineContext ctx) {
+		if (loopDeclaration) {
+			if (forLoop) {
+				code += ")";
+				forLoop = false;
+			}
+			code += ":";
+			loopDeclaration = false;
+		}
+		if (arrayDeclaration) {
+			code += " = [None] * " + arraySize;
+			arrayDeclaration = false;
+			rightSquarePassed = false;
+		}
 		code +="\n";
 		addTabs();
 	}
@@ -194,13 +218,18 @@ public class MyListener extends PseudoCodeBaseListener {
 	@Override public void exitLiteral_auto(PseudoCodeParser.Literal_autoContext ctx) { }
 
 	@Override public void enterLiteral_left_square_bracket(PseudoCodeParser.Literal_left_square_bracketContext ctx) {
-		code+="[";
+		if (!functionDeclaration && !arrayDeclaration) {
+			code += "[";
+		}
 	}
 
 	@Override public void exitLiteral_left_square_bracket(PseudoCodeParser.Literal_left_square_bracketContext ctx) { }
 
 	@Override public void enterLiteral_right_square_bracket(PseudoCodeParser.Literal_right_square_bracketContext ctx) {
-		code+="]";
+		if (!functionDeclaration && !arrayDeclaration) {
+			code += "]";
+		}
+		rightSquarePassed = true;
 	}
 
 	@Override public void exitLiteral_right_square_bracket(PseudoCodeParser.Literal_right_square_bracketContext ctx) { }
@@ -264,8 +293,8 @@ public class MyListener extends PseudoCodeBaseListener {
 
 	@Override public void exitLiteral_endwhile(PseudoCodeParser.Literal_endwhileContext ctx) { }
 
-	//TODO
 	@Override public void enterLiteral_for(PseudoCodeParser.Literal_forContext ctx) {
+		forLoop = true;
 		code += "for ";
 		tabCounter++;
 	}
@@ -273,7 +302,7 @@ public class MyListener extends PseudoCodeBaseListener {
 	@Override public void exitLiteral_for(PseudoCodeParser.Literal_forContext ctx) { }
 
 	@Override public void enterLiteral_to(PseudoCodeParser.Literal_toContext ctx) {
-		code += " to ";
+		code += ", ";
 	}
 
 	@Override public void exitLiteral_to(PseudoCodeParser.Literal_toContext ctx) { }
@@ -312,6 +341,7 @@ public class MyListener extends PseudoCodeBaseListener {
 	@Override public void exitLiteral_endforeach(PseudoCodeParser.Literal_endforeachContext ctx) { }
 
 	@Override public void enterLiteral_function(PseudoCodeParser.Literal_functionContext ctx) {
+		functionDeclaration = true;
 		code += "def ";
 		tabCounter++;
 	}
@@ -323,7 +353,7 @@ public class MyListener extends PseudoCodeBaseListener {
 	@Override public void exitLiteral_void(PseudoCodeParser.Literal_voidContext ctx) { }
 
 	@Override public void enterLiteral_begin(PseudoCodeParser.Literal_beginContext ctx) {
-		code +=":";
+		functionDeclaration = false;
 	}
 
 	@Override public void exitLiteral_begin(PseudoCodeParser.Literal_beginContext ctx) { }
@@ -370,7 +400,11 @@ public class MyListener extends PseudoCodeBaseListener {
 	@Override public void exitLiteral_negative(PseudoCodeParser.Literal_negativeContext ctx) { }
 
 	@Override public void enterLiteral_postitive(PseudoCodeParser.Literal_postitiveContext ctx) {
-		code +=ctx.POSITIVE().getText();
+		if (arrayDeclaration) {
+			arraySize = ctx.POSITIVE().getText();
+		} else {
+			code += ctx.POSITIVE().getText();
+		}
 	}
 
 	@Override public void exitLiteral_postitive(PseudoCodeParser.Literal_postitiveContext ctx) { }
@@ -388,7 +422,11 @@ public class MyListener extends PseudoCodeBaseListener {
 	@Override public void exitLiteral_string_value(PseudoCodeParser.Literal_string_valueContext ctx) { }
 
 	@Override public void enterLiteral_identifier(PseudoCodeParser.Literal_identifierContext ctx) {
-		code += ctx.ID().getText();
+		if (arrayDeclaration && !rightSquarePassed) {
+			arraySize = ctx.ID().getText();
+		} else {
+			code += ctx.ID().getText();
+		}
 	}
 
 	@Override public void exitLiteral_identifier(PseudoCodeParser.Literal_identifierContext ctx) { }
@@ -441,7 +479,10 @@ public class MyListener extends PseudoCodeBaseListener {
 
 	@Override public void exitTypes_simple(PseudoCodeParser.Types_simpleContext ctx) { }
 
-	@Override public void enterArray(PseudoCodeParser.ArrayContext ctx) { }
+	@Override public void enterArray(PseudoCodeParser.ArrayContext ctx) {
+		arrayDeclaration = true;
+		rightSquarePassed = false;
+	}
 
 	@Override public void exitArray(PseudoCodeParser.ArrayContext ctx) { }
 
@@ -473,7 +514,9 @@ public class MyListener extends PseudoCodeBaseListener {
 
 	@Override public void exitIf_statement(PseudoCodeParser.If_statementContext ctx) { }
 
-	@Override public void enterIteration_statements(PseudoCodeParser.Iteration_statementsContext ctx) { }
+	@Override public void enterIteration_statements(PseudoCodeParser.Iteration_statementsContext ctx) {
+		loopDeclaration = true;
+	}
 
 	@Override public void exitIteration_statements(PseudoCodeParser.Iteration_statementsContext ctx) { }
 

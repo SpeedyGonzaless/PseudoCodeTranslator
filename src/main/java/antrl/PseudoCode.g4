@@ -60,7 +60,8 @@ ID : ('a'..'z' | 'A'..'Z')('a'..'z' | 'A'..'Z')*('0'..'9')* ;
 program : source_element+ ; // Набор элементов кода - от 1 до N элементов.
 source_element : function_declaration+ | statements  ; // элемент - либо объявление функции, либо некоторое выражение.
 statements : statement+ ;
-statement : variable_statement   // Определение переменной.
+statement : function_call
+			 | variable_statement   // Определение переменной.
              | empty_statement      // Пустое выражение.
              | expr_statement       // Вычислимое выражение.
              | if_statement         // IF.
@@ -77,7 +78,7 @@ literal : boolean_literal // Булева константа.
 boolean_literal : literal_true | literal_false ;
 numeric_literal : integer | literal_float_number ;
 string_literal : literal_string_value ;
-call_id : literal_identifier | literal_identifier literal_left_square_bracket (additive | literal_postitive | literal_identifier) literal_right_square_bracket; //Обращение к переменной
+call_id : literal_identifier | literal_identifier literal_left_square_bracket (additive | literal_postitive | literal_identifier) literal_right_square_bracket | literal; //Обращение к переменной
 literal_true: TRUE;
 literal_false: FALSE;
 literal_minus: MINUS;
@@ -168,7 +169,7 @@ array : types_simple literal_left_square_bracket (literal_postitive | literal_id
 array_in_function : types_simple literal_left_square_bracket literal_right_square_bracket literal_identifier ;
 types : literal_map literal_left_round_bracket types_simple literal_comma  types_simple literal_right_round_bracket | types_simple ; //добавили к простым типам специальный тип Map
 varible : types literal_identifier | array ;
-varible_in_function : types literal_identifier | array_in_function ;
+varible_in_function : types literal_identifier | array_in_function;
 variable_declaration : varible | varible assignment_expr | literal_auto literal_identifier assignment_expr ;
 variable_statement : variable_declaration literal_new_line ;
 

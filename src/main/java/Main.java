@@ -6,12 +6,17 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.util.Scanner;
 
 public class Main {
+    private static final String pythonFile = null;
+    private static final String pyExpansion = ".py";
     public static void main( String[] args) throws Exception
     {
-        File programFile = new File("C:\\Users\\ivanf\\IdeaProjects\\Course_Compilers\\src\\main\\java\\program.txt");
+        String inputFile = args[0];
+        String file = inputFile.split("\\.")[0];
+        File programFile = new File(System.getProperty("user.dir") + "\\" + inputFile);
         String programString = "";
         Scanner myReader = new Scanner(programFile);
         while (myReader.hasNextLine()) {
@@ -19,16 +24,18 @@ public class Main {
             programString += "\n";
         }
         myReader.close();
-//        programString = "FUNCTION InsetSort (int32[] a) : int32[] BEGIN\n";
         PseudoCodeLexer lexer = new PseudoCodeLexer(CharStreams.fromString(programString));
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         PseudoCodeParser parser = new PseudoCodeParser(tokens);
         ParseTree tree = parser.program();
         ParseTreeWalker walker = new CustomWalker();
-        MyListener myListener = new MyListener();
-        walker.walk(myListener, tree);
+        PythonListener pythonListener = new PythonListener();
+        walker.walk(pythonListener, tree);
+        FileOutputStream outputStreamPython = new FileOutputStream(file + pyExpansion);
+        byte[] strToBytes = pythonListener.toString().getBytes();
+        outputStreamPython.write(strToBytes);
+        outputStreamPython.close();
         System.out.println();
-        System.out.println(myListener);
-        int t = 0;
+        System.out.println(pythonListener);
     }
 }

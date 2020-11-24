@@ -17,8 +17,15 @@ def findMaxBiggerThanElem(array,elemCompare):
 			max=elem
 	return max
 
-size=10
-floatArray = [None] * size
-for i in range(0, size):
-	floatArray[i]=i
-maxValue=findMaxBiggerThanElem(floatArray,10)
+def main():
+	size=10
+	floatArray = [None] * size
+	for i in range(0, size):
+		floatArray[i]=i
+	maxValue=findMaxBiggerThanElem(floatArray,10)
+	
+	if (maxValue<100):
+		maxValue=size
+	else:
+		maxValue=100
+	return 0

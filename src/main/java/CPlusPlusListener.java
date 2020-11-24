@@ -4,15 +4,27 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
-public class PythonListener extends PseudoCodeBaseListener {
+public class CPlusPlusListener extends PseudoCodeBaseListener {
 	private String code = "";
 	private int tabCounter = 0;
+	private boolean hasError = false;
+	private String errorToken = "";
 	private boolean functionDeclaration = false;
-	private boolean loopDeclaration = false;
+	private boolean functionParams = false;
+	private boolean functionReturnType = false;
+	private String functionReturnTypeValue = "";
+	private String functionAfterType = "";
 	private boolean forLoop = false;
+	private boolean forEachLoop = false;
+	private boolean whileLoop = false;
+	private boolean identToSaveForLoop = false;
 	private boolean arrayDeclaration = false;
 	private boolean rightSquarePassed = false;
 	private String arraySize = "";
+	private String savedCode = "";
+	private String identForLoop = "";
+	private String includeVector = "#include <vector>\n\n";
+	private boolean vectorIncluded = false;
 
 	private void addTabs() {
 		for (int i=0; i<tabCounter; i++) {
@@ -73,152 +85,212 @@ public class PythonListener extends PseudoCodeBaseListener {
 	@Override public void exitLiteral_false(PseudoCodeParser.Literal_falseContext ctx) { }
 
 	@Override public void enterLiteral_minus(PseudoCodeParser.Literal_minusContext ctx) {
-		code += "-";
+		code += " - ";
 	}
 
 	@Override public void exitLiteral_minus(PseudoCodeParser.Literal_minusContext ctx) { }
 
 	@Override public void enterLiteral_plus(PseudoCodeParser.Literal_plusContext ctx) {
-		code += "+";
+		code += " + ";
 	}
 
 	@Override public void exitLiteral_plus(PseudoCodeParser.Literal_plusContext ctx) { }
 
 	@Override public void enterLiteral_multy(PseudoCodeParser.Literal_multyContext ctx) {
-		code+= "*";
+		code+= " * ";
 	}
 
 	@Override public void exitLiteral_multy(PseudoCodeParser.Literal_multyContext ctx) { }
 
 	@Override public void enterLiteral_dev(PseudoCodeParser.Literal_devContext ctx) {
-		code += "/";
+		code += " / ";
 	}
 
 	@Override public void exitLiteral_dev(PseudoCodeParser.Literal_devContext ctx) { }
 
 	@Override public void enterLiteral_mod(PseudoCodeParser.Literal_modContext ctx) {
-		code += "%";
+		code += " % ";
 	}
 
 	@Override public void exitLiteral_mod(PseudoCodeParser.Literal_modContext ctx) { }
 
 	@Override public void enterLiteral_less_sign(PseudoCodeParser.Literal_less_signContext ctx) {
-		code += "<";
+		code += " < ";
 	}
 
 	@Override public void exitLiteral_less_sign(PseudoCodeParser.Literal_less_signContext ctx) { }
 
 	@Override public void enterLiteral_more_sign(PseudoCodeParser.Literal_more_signContext ctx) {
-		code += ">";
+		code += " > ";
 	}
 
 	@Override public void exitLiteral_more_sign(PseudoCodeParser.Literal_more_signContext ctx) { }
 
 	@Override public void enterLiteral_less_equal_sign(PseudoCodeParser.Literal_less_equal_signContext ctx) {
-		code += "<=";
+		code += " <= ";
 	}
 
 	@Override public void exitLiteral_less_equal_sign(PseudoCodeParser.Literal_less_equal_signContext ctx) { }
 
 	@Override public void enterLiteral_more_equal_sign(PseudoCodeParser.Literal_more_equal_signContext ctx) {
-		code += ">=";
+		code += " >= ";
 	}
 
 	@Override public void exitLiteral_more_equal_sign(PseudoCodeParser.Literal_more_equal_signContext ctx) { }
 
 	@Override public void enterLiteral_equal_sign(PseudoCodeParser.Literal_equal_signContext ctx) {
-		code += "=";
+		code += " = ";
 	}
 
 	@Override public void exitLiteral_equal_sign(PseudoCodeParser.Literal_equal_signContext ctx) { }
 
 	@Override public void enterLiteral_not_equal_sign(PseudoCodeParser.Literal_not_equal_signContext ctx) {
-		code += "!=";
+		code += " != ";
 	}
 
 	@Override public void exitLiteral_not_equal_sign(PseudoCodeParser.Literal_not_equal_signContext ctx) { }
 
 	@Override public void enterLiteral_or(PseudoCodeParser.Literal_orContext ctx) {
-		code += " or ";
+		code += " || ";
 	}
 
 	@Override public void exitLiteral_or(PseudoCodeParser.Literal_orContext ctx) { }
 
 	@Override public void enterLiteral_and(PseudoCodeParser.Literal_andContext ctx) {
-		code += " and ";
+		code += " && ";
 	}
 
 	@Override public void exitLiteral_and(PseudoCodeParser.Literal_andContext ctx) { }
 
 	@Override public void enterLiteral_plus_plus(PseudoCodeParser.Literal_plus_plusContext ctx) {
-		code += " += 1";
+		code += "++";
 	}
 
 	@Override public void exitLiteral_plus_plus(PseudoCodeParser.Literal_plus_plusContext ctx) { }
 
 	@Override public void enterLiteral_minus_minis(PseudoCodeParser.Literal_minus_minisContext ctx) {
-		code += " -= 1";
+		code += "--";
 	}
 
 	@Override public void exitLiteral_minus_minis(PseudoCodeParser.Literal_minus_minisContext ctx) { }
 
 	@Override public void enterLiteral_assign_sign(PseudoCodeParser.Literal_assign_signContext ctx) {
-		if (!forLoop) {
-			code += "=";
-		} else {
-			code += " in range(";
-		}
+		code += "=";
 	}
 
 	@Override public void exitLiteral_assign_sign(PseudoCodeParser.Literal_assign_signContext ctx) { }
 
 	@Override public void enterLiteral_new_line(PseudoCodeParser.Literal_new_lineContext ctx) {
-		if (loopDeclaration) {
-			if (forLoop) {
-				code += ")";
-				forLoop = false;
-			}
-			code += ":";
-			loopDeclaration = false;
-		}
-		if (arrayDeclaration) {
-			code += " = [None] * " + arraySize;
+		if (forEachLoop) {
+			code += ") {";
+			forEachLoop = false;
+		} else if (forLoop) {
+			code += "; " + identForLoop + "++) {";
+			forLoop=false;
+		} else if (whileLoop) {
+			code += " {";
+			whileLoop = false;
+		} else if (arrayDeclaration) {
+			code += "(" + arraySize + ");";
 			arrayDeclaration = false;
 			rightSquarePassed = false;
+		} else if (functionDeclaration) {
+			code += functionReturnTypeValue + " " + functionAfterType + " {";
+			functionReturnType = false;
+			functionDeclaration = false;
+			functionAfterType = "";
+		} else if (isCodeChanged()) {
+			code += ";";
 		}
-		code +="\n";
+		code += "\n";
 		addTabs();
+		savedCode = code;
 	}
 
 	@Override public void exitLiteral_new_line(PseudoCodeParser.Literal_new_lineContext ctx) { }
 
-	@Override public void enterLiteral_int_32(PseudoCodeParser.Literal_int_32Context ctx) { }
+	@Override public void enterLiteral_int_32(PseudoCodeParser.Literal_int_32Context ctx) {
+		if (functionReturnType) {
+			functionReturnTypeValue = "int";
+		} else if (functionDeclaration) {
+			functionAfterType += "int ";
+		} else {
+			code += "int ";
+		}
+	}
 
 	@Override public void exitLiteral_int_32(PseudoCodeParser.Literal_int_32Context ctx) { }
 
-	@Override public void enterLiteral_int_64(PseudoCodeParser.Literal_int_64Context ctx) { }
+	@Override public void enterLiteral_int_64(PseudoCodeParser.Literal_int_64Context ctx) {
+		if (functionReturnType) {
+			functionReturnTypeValue = "long";
+		} else if (functionDeclaration) {
+			functionAfterType += "long ";
+		} else {
+			code += "long ";
+		}
+	}
 
 	@Override public void exitLiteral_int_64(PseudoCodeParser.Literal_int_64Context ctx) { }
 
-	@Override public void enterLiteral_float(PseudoCodeParser.Literal_floatContext ctx) { }
+	@Override public void enterLiteral_float(PseudoCodeParser.Literal_floatContext ctx) {
+		if (functionReturnType) {
+			functionReturnTypeValue = "float";
+		} else if (functionDeclaration) {
+			functionAfterType += "float ";
+		} else {
+			code += "float ";
+		}
+	}
 
 	@Override public void exitLiteral_float(PseudoCodeParser.Literal_floatContext ctx) { }
 
-	@Override public void enterLiteral_string(PseudoCodeParser.Literal_stringContext ctx) { }
+	@Override public void enterLiteral_string(PseudoCodeParser.Literal_stringContext ctx) {
+		if (functionReturnType) {
+			functionReturnTypeValue = "std::string";
+		} else if (functionDeclaration) {
+			functionAfterType += "std::string ";
+		} else {
+			code += "std::string";
+		}
+	}
 
 	@Override public void exitLiteral_string(PseudoCodeParser.Literal_stringContext ctx) { }
 
-	@Override public void enterLiteral_boolean(PseudoCodeParser.Literal_booleanContext ctx) { }
+	@Override public void enterLiteral_boolean(PseudoCodeParser.Literal_booleanContext ctx) {
+		if (functionReturnType) {
+			functionReturnTypeValue = "bool";
+		} else if (functionDeclaration) {
+			functionAfterType += "bool ";
+		} else {
+			code += "bool ";
+		}
+	}
 
 	@Override public void exitLiteral_boolean(PseudoCodeParser.Literal_booleanContext ctx) { }
 
-	@Override public void enterLiteral_auto(PseudoCodeParser.Literal_autoContext ctx) { }
+	@Override public void enterLiteral_auto(PseudoCodeParser.Literal_autoContext ctx) {
+		if (functionReturnType) {
+			functionReturnTypeValue = "auto";
+		} else if (functionDeclaration) {
+			functionAfterType += "auto ";
+		} else {
+			code += "auto ";
+		}
+	}
 
 	@Override public void exitLiteral_auto(PseudoCodeParser.Literal_autoContext ctx) { }
 
 	@Override public void enterLiteral_left_square_bracket(PseudoCodeParser.Literal_left_square_bracketContext ctx) {
 		if (!functionDeclaration && !arrayDeclaration) {
 			code += "[";
+		}
+		if (functionReturnType) {
+			if (!vectorIncluded) {
+				code = includeVector + code;
+				vectorIncluded = true;
+			}
+			functionReturnTypeValue = "std::vector<" + functionReturnTypeValue;
 		}
 	}
 
@@ -227,6 +299,14 @@ public class PythonListener extends PseudoCodeBaseListener {
 	@Override public void enterLiteral_right_square_bracket(PseudoCodeParser.Literal_right_square_bracketContext ctx) {
 		if (!functionDeclaration && !arrayDeclaration) {
 			code += "]";
+		} else if (!functionDeclaration) {
+			code = code.substring(0, code.length()-1);
+			code += "> ";
+		} else if (functionReturnType) {
+			functionReturnTypeValue += ">";
+		} else {
+			functionAfterType = functionAfterType.substring(0, functionAfterType.length() - 1);
+			functionAfterType += "> ";
 		}
 		rightSquarePassed = true;
 	}
@@ -234,13 +314,24 @@ public class PythonListener extends PseudoCodeBaseListener {
 	@Override public void exitLiteral_right_square_bracket(PseudoCodeParser.Literal_right_square_bracketContext ctx) { }
 
 	@Override public void enterLiteral_left_round_bracket(PseudoCodeParser.Literal_left_round_bracketContext ctx) {
-		code += "(";
+		if (functionDeclaration) {
+			functionParams = true;
+			functionAfterType += "(";
+		} else {
+			code += "(";
+		}
 	}
 
 	@Override public void exitLiteral_left_round_bracket(PseudoCodeParser.Literal_left_round_bracketContext ctx) { }
 
 	@Override public void enterLiteral_right_round_bracket(PseudoCodeParser.Literal_right_round_bracketContext ctx) {
-		code += ")";
+		if (functionDeclaration) {
+			functionParams = false;
+			functionReturnType = true;
+			functionAfterType += ")";
+		} else {
+			code += ")";
+		}
 	}
 
 	@Override public void exitLiteral_right_round_bracket(PseudoCodeParser.Literal_right_round_bracketContext ctx) { }
@@ -253,95 +344,99 @@ public class PythonListener extends PseudoCodeBaseListener {
 	@Override public void exitLiteral_if(PseudoCodeParser.Literal_ifContext ctx) { }
 
 	@Override public void enterLiteral_then(PseudoCodeParser.Literal_thenContext ctx) {
-		code += ":";
+		code += " {";
+		savedCode = code;
 	}
 
 	@Override public void exitLiteral_then(PseudoCodeParser.Literal_thenContext ctx) { }
 
 	@Override public void enterLiteral_else(PseudoCodeParser.Literal_elseContext ctx) {
 		code = code.substring(0, code.length() - 1);
-		code += "else:";
+		code += "} else {";
+		savedCode = code;
 	}
 
 	@Override public void exitLiteral_else(PseudoCodeParser.Literal_elseContext ctx) { }
 
 	@Override public void enterLiteral_endif(PseudoCodeParser.Literal_endifContext ctx) {
-		while (!code.endsWith("\n")) {
-			code = code.substring(0, code.length()-1);
-		}
 		code = code.substring(0, code.length()-1);
 		tabCounter--;
+		code += "}";
+		addTabs();
+		savedCode = code;
 	}
 
 	@Override public void exitLiteral_endif(PseudoCodeParser.Literal_endifContext ctx) { }
 
 	@Override public void enterLiteral_while(PseudoCodeParser.Literal_whileContext ctx) {
 		code += "while ";
+		whileLoop = true;
 		tabCounter++;
 	}
 
 	@Override public void exitLiteral_while(PseudoCodeParser.Literal_whileContext ctx) { }
 
 	@Override public void enterLiteral_endwhile(PseudoCodeParser.Literal_endwhileContext ctx) {
-		while (!code.endsWith("\n")) {
-			code = code.substring(0, code.length()-1);
-		}
 		code = code.substring(0, code.length()-1);
 		tabCounter--;
+		code += "}";
+		addTabs();
+		savedCode = code;
 	}
 
 	@Override public void exitLiteral_endwhile(PseudoCodeParser.Literal_endwhileContext ctx) { }
 
 	@Override public void enterLiteral_for(PseudoCodeParser.Literal_forContext ctx) {
 		forLoop = true;
-		code += "for ";
+		identToSaveForLoop = true;
+		code += "for (auto ";
 		tabCounter++;
 	}
 
 	@Override public void exitLiteral_for(PseudoCodeParser.Literal_forContext ctx) { }
 
 	@Override public void enterLiteral_to(PseudoCodeParser.Literal_toContext ctx) {
-		code += ", ";
+		code += "; " + identForLoop + " < ";
 	}
 
 	@Override public void exitLiteral_to(PseudoCodeParser.Literal_toContext ctx) { }
 
 	@Override public void enterLiteral_endfor(PseudoCodeParser.Literal_endforContext ctx) {
-		while (!code.endsWith("\n")) {
-			code = code.substring(0, code.length()-1);
-		}
 		code = code.substring(0, code.length()-1);
 		tabCounter--;
+		code += "}";
+		addTabs();
+		savedCode = code;
 	}
 
 	@Override public void exitLiteral_endfor(PseudoCodeParser.Literal_endforContext ctx) { }
 
 	@Override public void enterLiteral_foreach(PseudoCodeParser.Literal_foreachContext ctx) {
-		code += "for ";
+		forEachLoop = true;
+		code += "for (auto ";
 		tabCounter++;
 	}
 
 	@Override public void exitLiteral_foreach(PseudoCodeParser.Literal_foreachContext ctx) { }
 
 	@Override public void enterLiteral_in(PseudoCodeParser.Literal_inContext ctx) {
-		code += " in ";
+		code += " : ";
 	}
 
 	@Override public void exitLiteral_in(PseudoCodeParser.Literal_inContext ctx) { }
 
 	@Override public void enterLiteral_endforeach(PseudoCodeParser.Literal_endforeachContext ctx) {
-		while (!code.endsWith("\n")) {
-			code = code.substring(0, code.length()-1);
-		}
 		code = code.substring(0, code.length()-1);
 		tabCounter--;
+		code += "}";
+		addTabs();
+		savedCode = code;
 	}
 
 	@Override public void exitLiteral_endforeach(PseudoCodeParser.Literal_endforeachContext ctx) { }
 
 	@Override public void enterLiteral_function(PseudoCodeParser.Literal_functionContext ctx) {
 		functionDeclaration = true;
-		code += "def ";
 		tabCounter++;
 	}
 
@@ -351,18 +446,16 @@ public class PythonListener extends PseudoCodeBaseListener {
 
 	@Override public void exitLiteral_void(PseudoCodeParser.Literal_voidContext ctx) { }
 
-	@Override public void enterLiteral_begin(PseudoCodeParser.Literal_beginContext ctx) {
-		functionDeclaration = false;
-	}
+	@Override public void enterLiteral_begin(PseudoCodeParser.Literal_beginContext ctx) {}
 
 	@Override public void exitLiteral_begin(PseudoCodeParser.Literal_beginContext ctx) { }
 
 	@Override public void enterLiteral_end_function(PseudoCodeParser.Literal_end_functionContext ctx) {
-		while (!code.endsWith("\n")) {
-			code = code.substring(0, code.length()-1);
-		}
 		code = code.substring(0, code.length()-1);
 		tabCounter--;
+		code += "}";
+		addTabs();
+		savedCode = code;
 	}
 
 	@Override public void exitLiteral_end_function(PseudoCodeParser.Literal_end_functionContext ctx) { }
@@ -381,14 +474,16 @@ public class PythonListener extends PseudoCodeBaseListener {
 	@Override public void exitLiteral_map(PseudoCodeParser.Literal_mapContext ctx) { }
 
 	@Override public void enterLiteral_comma(PseudoCodeParser.Literal_commaContext ctx) {
-		code +=",";
+		if (functionDeclaration) {
+			functionAfterType += ", ";
+		} else {
+			code += ", ";
+		}
 	}
 
 	@Override public void exitLiteral_comma(PseudoCodeParser.Literal_commaContext ctx) { }
 
-	@Override public void enterLiteral_colon_sign(PseudoCodeParser.Literal_colon_signContext ctx) {
-		code += ":";
-	}
+	@Override public void enterLiteral_colon_sign(PseudoCodeParser.Literal_colon_signContext ctx) {}
 
 	@Override public void exitLiteral_colon_sign(PseudoCodeParser.Literal_colon_signContext ctx) { }
 
@@ -421,8 +516,19 @@ public class PythonListener extends PseudoCodeBaseListener {
 	@Override public void exitLiteral_string_value(PseudoCodeParser.Literal_string_valueContext ctx) { }
 
 	@Override public void enterLiteral_identifier(PseudoCodeParser.Literal_identifierContext ctx) {
+		if (identToSaveForLoop) {
+			identForLoop = ctx.ID().getText();
+			identToSaveForLoop = false;
+		}
 		if (arrayDeclaration && !rightSquarePassed) {
 			arraySize = ctx.ID().getText();
+		} else if (functionDeclaration) {
+			if (functionParams) {
+				functionAfterType += ctx.ID().getText();
+				arrayDeclaration = false;
+			} else {
+				functionAfterType = ctx.ID().getText();
+			}
 		} else {
 			code += ctx.ID().getText();
 		}
@@ -479,13 +585,25 @@ public class PythonListener extends PseudoCodeBaseListener {
 	@Override public void exitTypes_simple(PseudoCodeParser.Types_simpleContext ctx) { }
 
 	@Override public void enterArray(PseudoCodeParser.ArrayContext ctx) {
+		if (!vectorIncluded) {
+			code = includeVector + code;
+			vectorIncluded = true;
+		}
+		code += "std::vector<";
 		arrayDeclaration = true;
 		rightSquarePassed = false;
 	}
 
 	@Override public void exitArray(PseudoCodeParser.ArrayContext ctx) { }
 
-	@Override public void enterArray_in_function(PseudoCodeParser.Array_in_functionContext ctx) { }
+	@Override public void enterArray_in_function(PseudoCodeParser.Array_in_functionContext ctx) {
+		if (!vectorIncluded) {
+			code = includeVector + code;
+			vectorIncluded = true;
+		}
+		functionAfterType += "std::vector<";
+		arrayDeclaration = true;
+	}
 
 	@Override public void exitArray_in_function(PseudoCodeParser.Array_in_functionContext ctx) { }
 
@@ -513,9 +631,7 @@ public class PythonListener extends PseudoCodeBaseListener {
 
 	@Override public void exitIf_statement(PseudoCodeParser.If_statementContext ctx) { }
 
-	@Override public void enterIteration_statements(PseudoCodeParser.Iteration_statementsContext ctx) {
-		loopDeclaration = true;
-	}
+	@Override public void enterIteration_statements(PseudoCodeParser.Iteration_statementsContext ctx) { }
 
 	@Override public void exitIteration_statements(PseudoCodeParser.Iteration_statementsContext ctx) { }
 
@@ -555,16 +671,32 @@ public class PythonListener extends PseudoCodeBaseListener {
 
 	@Override public void exitFunction_params(PseudoCodeParser.Function_paramsContext ctx) { }
 
-
 	@Override public void enterEveryRule(ParserRuleContext ctx) { }
 
 	@Override public void exitEveryRule(ParserRuleContext ctx) { }
 
 	@Override public void visitTerminal(TerminalNode node) { }
 
-	@Override public void visitErrorNode(ErrorNode node) { }
+	@Override public void visitErrorNode(ErrorNode node) {
+		hasError = true;
+		errorToken = node.getText();
+	}
+
+	public boolean hasError() {
+		return hasError;
+	}
+
+	public String getErrorToken() {
+		return errorToken;
+	}
 
 	public String toString() {
 		return code;
+	}
+
+	public boolean isCodeChanged() {
+		String s1 = code.replaceAll("\n", "").replaceAll("\t", "");
+		String s2 = savedCode.replaceAll("\n", "").replaceAll("\t", "");
+		return !s1.equals(s2);
 	}
 }

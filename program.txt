@@ -1,8 +1,8 @@
 FUNCTION InsetSort (int32[] a) : int32[] BEGIN
 	int32 i <- 1
 	WHILE (i<10)
-		elem <- a[i]
-		loc <- i - 1
+		int32 elem <- a[i]
+		int32 loc <- i - 1
 		WHILE (loc >= 0 AND a[loc] > elem)
 			a[loc + 1] <- a[loc]
 			loc <- loc - 1
@@ -23,9 +23,18 @@ FUNCTION findMaxBiggerThanElem (float[] array, float elemCompare) : float BEGIN
 	RETURN max
 END_FUNCTION
 
-int32 size <- 10
-float[size] floatArray
-FOR i <- 0 TO size
-	floatArray[i] <- i
-ENDFOR
-float maxValue <- findMaxBiggerThanElem(floatArray, 10)
+FUNCTION main() : int32 BEGIN
+	int32 size <- 10
+	float[size] floatArray
+	FOR i <- 0 TO size
+		floatArray[i] <- i
+	ENDFOR
+	float maxValue <- findMaxBiggerThanElem(floatArray, 10)
+
+	IF (maxValue < 100) THEN
+		maxValue <- size
+	ELSE
+		maxValue <- 100
+	ENDIF
+	RETURN 0
+END_FUNCTION

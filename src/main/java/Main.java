@@ -10,7 +10,6 @@ import java.io.FileOutputStream;
 import java.util.Scanner;
 
 public class Main {
-    private static final String pythonFile = null;
     private static final String pyExpansion = ".py";
     private static final String cppExpansion = ".cpp";
     public static void main( String[] args) throws Exception

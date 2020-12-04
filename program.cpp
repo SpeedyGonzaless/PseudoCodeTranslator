@@ -28,6 +28,7 @@ float findMaxBiggerThanElem(std::vector<float> array, float elemCompare) {
 int main() {
 	int size=10;
 	std::vector<float> floatArray(size);
+	map(std::string, int )stringToIntMap;
 	for (auto i=0; i < size; i++) {
 		floatArray[i]=i;
 	}	

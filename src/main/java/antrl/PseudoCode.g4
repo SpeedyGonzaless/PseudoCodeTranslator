@@ -187,10 +187,6 @@ iteration_statement_while : literal_while literal_left_round_bracket logical lit
 iteration_statement_for : literal_for literal_identifier assignment_expr literal_to (integer | call_id) literal_new_line statements literal_endfor literal_new_line;
 iteration_statement_for_each : literal_foreach literal_identifier literal_in literal_identifier literal_new_line statements literal_endforeach literal_new_line;
 
-// RETURN. Если функция всегда что-то возвращает, то надо это в функциюю перенести
-// И убрать из statements.
-
-return_statement : literal_return logical literal_new_line | literal_return literal_new_line ;
 
 //ФУНКЦИИ
 
@@ -202,3 +198,5 @@ return_types : types | types_simple literal_left_square_bracket literal_right_sq
 formal_parameter_list : varible_in_function (literal_comma varible_in_function)* ;
 function_call :  literal_identifier literal_left_round_bracket function_params literal_right_round_bracket | literal_identifier literal_left_round_bracket literal_right_round_bracket;
 function_params : call_id (literal_comma call_id)* ;
+
+return_statement : literal_return logical literal_new_line | literal_return literal_new_line ;

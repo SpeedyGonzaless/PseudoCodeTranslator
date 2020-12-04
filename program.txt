@@ -26,6 +26,7 @@ END_FUNCTION
 FUNCTION main() : int32 BEGIN
 	int32 size <- 10
 	float[size] floatArray
+	Map(String, int32) stringToIntMap
 	FOR i <- 0 TO size
 		floatArray[i] <- i
 	ENDFOR

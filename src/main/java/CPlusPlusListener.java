@@ -442,7 +442,9 @@ public class CPlusPlusListener extends PseudoCodeBaseListener {
 
 	@Override public void exitLiteral_function(PseudoCodeParser.Literal_functionContext ctx) { }
 
-	@Override public void enterLiteral_void(PseudoCodeParser.Literal_voidContext ctx) { }
+	@Override public void enterLiteral_void(PseudoCodeParser.Literal_voidContext ctx) {
+		functionReturnTypeValue = "void";
+	}
 
 	@Override public void exitLiteral_void(PseudoCodeParser.Literal_voidContext ctx) { }
 

@@ -20,7 +20,6 @@ def findMaxBiggerThanElem(array,elemCompare):
 def main():
 	size=10
 	floatArray = [None] * size
-	map(,)stringToIntMap
 	for i in range(0, size):
 		floatArray[i]=i
 	maxValue=findMaxBiggerThanElem(floatArray,10)

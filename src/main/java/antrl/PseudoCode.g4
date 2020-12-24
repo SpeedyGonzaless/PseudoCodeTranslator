@@ -136,7 +136,7 @@ literal_identifier : ID ;// Название перменной.
 
 
 //# ВЫРАЖЕНИЯ.
-simple_obj : call_id | literal  | literal_minus simple_obj | literal_left_round_bracket simple_obj literal_right_round_bracket | function_call ;
+simple_obj : call_id | literal  | literal_minus simple_obj | literal_left_round_bracket logical literal_right_round_bracket | function_call ;
 multiplicative : simple_obj ((literal_multy | literal_dev | literal_mod) simple_obj)* ;
 additive : multiplicative ((literal_plus | literal_minus ) multiplicative)* ;
 

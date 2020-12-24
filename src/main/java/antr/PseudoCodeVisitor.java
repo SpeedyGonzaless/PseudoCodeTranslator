@@ -1,4 +1,4 @@
-// Generated from C:/Users/ivanf/IdeaProjects/Course_Compilers/src/main/java/antrl\PseudoCode.g4 by ANTLR 4.8
+// Generated from C:/Users/ivanf/IdeaProjects/Course_Compilers/src/main/java/antrl\PseudoCode.g4 by ANTLR 4.9
 package antr;
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
@@ -539,12 +539,6 @@ public interface PseudoCodeVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitIteration_statement_for_each(PseudoCodeParser.Iteration_statement_for_eachContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link PseudoCodeParser#return_statement}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitReturn_statement(PseudoCodeParser.Return_statementContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link PseudoCodeParser#function_declaration}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -574,4 +568,10 @@ public interface PseudoCodeVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitFunction_params(PseudoCodeParser.Function_paramsContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link PseudoCodeParser#return_statement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitReturn_statement(PseudoCodeParser.Return_statementContext ctx);
 }

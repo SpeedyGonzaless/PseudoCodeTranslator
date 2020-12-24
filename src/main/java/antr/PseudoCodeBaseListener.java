@@ -1,4 +1,4 @@
-// Generated from C:/Users/ivanf/IdeaProjects/Course_Compilers/src/main/java/antrl\PseudoCode.g4 by ANTLR 4.8
+// Generated from C:/Users/ivanf/IdeaProjects/Course_Compilers/src/main/java/antrl\PseudoCode.g4 by ANTLR 4.9
 package antr;
 
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -1072,18 +1072,6 @@ public class PseudoCodeBaseListener implements PseudoCodeListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterReturn_statement(PseudoCodeParser.Return_statementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitReturn_statement(PseudoCodeParser.Return_statementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterFunction_declaration(PseudoCodeParser.Function_declarationContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1139,6 +1127,18 @@ public class PseudoCodeBaseListener implements PseudoCodeListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitFunction_params(PseudoCodeParser.Function_paramsContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterReturn_statement(PseudoCodeParser.Return_statementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitReturn_statement(PseudoCodeParser.Return_statementContext ctx) { }
 
 	/**
 	 * {@inheritDoc}
